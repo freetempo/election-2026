@@ -196,8 +196,9 @@ footer ul{padding-left:1.1em}
 .mph{grid-column:3;grid-row:1/span 3;border-radius:3px;background-color:var(--soft);background-repeat:no-repeat}
 .sph{display:inline-block;vertical-align:middle;margin-right:8px;border-radius:2px;background-repeat:no-repeat}
 .m22row{grid-template-columns:28px minmax(0,12em) 1fr auto}
-.tabs{flex-wrap:wrap;row-gap:6px}
-.tabs .theme + .theme{margin-left:8px}
+.prefs{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:12px}
+.prefs .theme{font:inherit;font-size:13px;font-weight:500;padding:3px 12px;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:20px;cursor:pointer}
+.nb{display:inline-block}
 .nophotos .cph,.nophotos .mph,.nophotos .sph{display:none}
 .nophotos .cand{grid-template-columns:64px 1fr}
 @media (max-width:480px){.cand{grid-template-columns:48px auto 1fr}.nophotos .cand{grid-template-columns:48px 1fr}.cand .num{font-size:30px}}
@@ -205,13 +206,14 @@ footer ul{padding-left:1.1em}
 <div class="wrap">
   <header class="mast">
     <div>
-      <h1>2026 六都市長・市議員選舉</h1>
+      <h1><span class="nb">2026 六都</span><span class="nb">市長・市議員選舉</span></h1>
       <div class="sub">臺北・新北・桃園・臺中・臺南・高雄　投票日 115年11月28日（星期六）上午8時至下午4時</div>
     </div>
     <div class="count"><b id="days">–</b><span>天後投票</span></div>
   </header>
   <nav class="cities" id="cities" aria-label="選擇城市"></nav>
-  <nav class="tabs" role="tablist" aria-label="選舉年份"><button type="button" role="tab" id="tab26">2026 候選人</button><button type="button" role="tab" id="tab22">2022 選舉結果</button><button type="button" class="theme" id="phbtn" aria-pressed="true">隱藏照片</button><button type="button" class="theme" id="theme">深色模式</button></nav>
+  <div class="prefs"><button type="button" class="theme" id="phbtn" aria-pressed="true">不顯示照片</button><button type="button" class="theme" id="theme">深色模式</button></div>
+  <nav class="tabs" role="tablist" aria-label="選舉年份"><button type="button" role="tab" id="tab26">2026 候選人</button><button type="button" role="tab" id="tab22">2022 選舉結果</button></nav>
   <div class="notice" id="notice"></div>
   <div class="stats" id="stats"></div>
 
@@ -284,7 +286,7 @@ const C = () => DATA.cities[CITY];
 (function(){
   const btn = $('#phbtn'), root = document.documentElement;
   let on = load('ty6-photos') !== 'off';
-  const apply = () => { root.classList.toggle('nophotos', !on); btn.textContent = on ? '隱藏照片' : '顯示照片'; btn.setAttribute('aria-pressed', on); };
+  const apply = () => { root.classList.toggle('nophotos', !on); btn.textContent = on ? '不顯示照片' : '顯示照片'; btn.setAttribute('aria-pressed', on); };
   apply();
   btn.addEventListener('click', () => { on = !on; store('ty6-photos', on ? 'on' : 'off'); apply(); });
 })();
