@@ -218,11 +218,6 @@ footer ul{padding-left:1.1em}
 .citypick,.qbar{display:none}
 #mayor,#council{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 52px)}
 @media (max-width:640px){
-  .cities{gap:6px;margin-top:12px}
-  .cgrp{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-inline:-20px;padding-inline:20px;scroll-padding-inline:20px}
-  .cgrp::-webkit-scrollbar{display:none}
-  .cgl{width:auto;margin-right:2px}
-  .cities button,.cities button.sm{flex:none;font-size:14px;padding:4px 11px}
   .qbar{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;align-items:center;gap:6px;margin:10px -20px 0;padding:8px 20px;background:var(--bg);border-bottom:1px solid var(--line)}
   .qbar #qcity{font-family:var(--f-display);font-weight:700;margin-right:auto}
   .qbar button{font:inherit;font-size:13px;padding:4px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:20px;cursor:pointer}
@@ -566,8 +561,6 @@ function header(){
   const c = C(), s = SHORT[CITY];
   document.querySelectorAll('[data-city]').forEach(b => { const on = b.dataset.city === CITY; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
   $('#qcity').textContent = CITY;
-  const onb = document.querySelector(`[data-city="${CITY}"]`), row = onb && onb.parentElement;
-  if (row && row.scrollWidth > row.clientWidth) row.scrollLeft = onb.offsetLeft - row.offsetLeft - (row.clientWidth - onb.offsetWidth) / 2;
   $('#qm').textContent = MT(); $('#qc').textContent = CT();
   ['26', '22'].forEach(k => { const b = $('#tab' + k), on = YEAR === '20' + k; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
   const seats = c.districts.reduce((a, d) => a + d.seats, 0);
