@@ -190,7 +190,7 @@ footer ul{padding-left:1.1em}
 .cityno .cph,.cityno .mph,.cityno .sph{display:none}
 .cityno .cand{grid-template-columns:64px 1fr}
 .cityno .mcard,.nophotos .mcard{grid-template-columns:auto 1fr}
-.nb + .nb{margin-left:.35em}
+.nb:first-child{margin-right:.35em}
 .cities button{font:inherit;font-family:var(--f-display);font-weight:700;font-size:16px;padding:6px 16px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:3px;cursor:pointer}
 .cities button.on{background:var(--accent);border-color:var(--accent);color:var(--paper)}
 .tl.small{display:none}
@@ -215,6 +215,22 @@ footer ul{padding-left:1.1em}
 .nb{display:inline-block}
 .nophotos .cph,.nophotos .mph,.nophotos .sph{display:none}
 .nophotos .cand{grid-template-columns:64px 1fr}
+.citypick,.qbar{display:none}
+#mayor,#council{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 52px)}
+@media (max-width:640px){
+  .cities{display:none}
+  .citypick{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:14px;color:var(--muted)}
+  .citypick select{flex:1;min-width:0;font:inherit;font-size:16px;font-weight:700;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:8px 10px}
+  .qbar{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;align-items:center;gap:6px;margin:10px -20px 0;padding:8px 20px;background:var(--bg);border-bottom:1px solid var(--line)}
+  .qbar #qcity{font-family:var(--f-display);font-weight:700;margin-right:auto}
+  .qbar button{font:inherit;font-size:13px;padding:4px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:20px;cursor:pointer}
+  .mcard{padding:14px;gap:4px 12px}
+  .mcard .no{font-size:52px;width:56px;height:64px;grid-row:span 3}
+  .mcard h3{font-size:22px}
+  .mcard .body{margin-top:6px;gap:6px}
+  .mmore summary{font-size:13px}
+  .mayors{gap:10px}
+}
 @media (max-width:480px){.cand{grid-template-columns:48px auto 1fr}.nophotos .cand,.cityno .cand{grid-template-columns:48px 1fr}.cand .num{font-size:30px}}
 </style>
 <div class="wrap">
@@ -226,6 +242,8 @@ footer ul{padding-left:1.1em}
     <div class="count"><b id="days">–</b><span>天後投票</span></div>
   </header>
   <nav class="cities" id="cities" aria-label="選擇城市"></nav>
+  <label class="citypick" for="citysel"><span>縣市</span><select id="citysel" aria-label="選擇縣市"></select></label>
+  <div class="qbar" role="navigation" aria-label="快速跳轉"><span id="qcity"></span><button type="button" data-jump="mayor" id="qm">市長</button><button type="button" data-jump="council" id="qc">議員</button><button type="button" data-jump="top">回頂端</button></div>
   <div class="prefs"><button type="button" class="theme" id="phbtn" aria-pressed="true">不顯示照片</button><button type="button" class="theme" id="theme">深色模式</button></div>
   <nav class="tabs" role="tablist" aria-label="選舉年份"><button type="button" role="tab" id="tab26">2026 候選人</button><button type="button" role="tab" id="tab22">2022 選舉結果</button></nav>
   <div class="notice" id="notice"></div>
@@ -313,6 +331,13 @@ const C = () => DATA.cities[CITY];
 $('#cities').innerHTML = `<div class="cgrp"><span class="cgl">六都</span>${DATA.six.map(c => `<button type="button" data-city="${c}">${SHORT[c]}</button>`).join('')}</div>`
   + `<div class="cgrp"><span class="cgl">其他縣市</span>${DATA.counties.map(c => `<button type="button" class="sm" data-city="${c}">${SHORT[c]}</button>`).join('')}</div>`;
 document.querySelectorAll('[data-city]').forEach(b => b.addEventListener('click', () => setCity(b.dataset.city)));
+$('#citysel').innerHTML = `<optgroup label="六都">${DATA.six.map(c => `<option value="${c}">${c}</option>`).join('')}</optgroup><optgroup label="其他縣市">${DATA.counties.map(c => `<option value="${c}">${c}</option>`).join('')}</optgroup>`;
+$('#citysel').addEventListener('change', e => setCity(e.target.value));
+// 4. quick bar (phone): jump to mayor / council / top
+document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => {
+  const t = b.dataset.jump === 'top' ? document.body : $('#' + b.dataset.jump);
+  t.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start'});
+}));
 
 // ---------- map ----------
 const diff22 = () => C().y22same === false;                       // 2022 districts differ from 2026
@@ -395,23 +420,29 @@ function b22box(b, title){
 function seatbar(n, w){ return `<div class="seatbar" aria-hidden="true">${Array.from({length: n}, (_, i) => `<i class="${i < w ? 'w' : ''}"></i>`).join('')}</div>`; }
 
 // ---------- 2026 ----------
+const PHONE = matchMedia('(max-width: 640px)');
 function renderMayors26(){
-  $('#mayors').innerHTML = C().mayors.map(m => `
+  const ph = PHONE.matches;
+  $('#mayors').innerHTML = C().mayors.map(m => {
+    const bio = `${m.edu ? `<dl class="kv"><dt>學歷</dt><dd><ul class="plain">${m.edu.map(x => `<li>${esc(x)}</li>`).join('')}</ul></dd>
+      <dt>經歷</dt><dd><ul class="plain">${m.exp.map(x => `<li>${esc(x)}</li>`).join('')}</ul></dd></dl>` : ''}
+      ${b22box(m.b22, `2022 ${MT()}選舉公報刊登的學經歷`)}
+      ${m.src ? `<div class="src">${esc(m.src)}</div>` : ''}`;
+    const hasBio = !!(m.edu || m.b22);
+    return `
   <article class="mcard" style="color:${PCOLOR(m.party)}">
-    ${photo(m.ph, 76, 'mph')}
+    ${photo(m.ph, ph ? 52 : 76, 'mph')}
     <div class="no" aria-label="號次 ${m.no ?? '未定'}">${m.no ?? '–'}</div>
     <h3 style="color:var(--ink)">${esc(m.name)}</h3>
     <div class="line"><span class="p ${pcls(m.party)}">${esc(pname(m.party))}</span>${m.incumbent ? `<span class="tag">現任${MT()}</span>` : ''}</div>
     <div class="line">${m.born ? esc(m.born) + '・' : ''}${m.birthplace ? esc(m.birthplace) + '・' : ''}登記 ${esc(m.reg)}</div>
     <div class="body" style="color:var(--ink)">
       ${m.r22 ? r22line(Object.assign({}, m.r22), `${SHORT[CITY]}${MT()}`) : `<div class="r22"><span class="lab">2022 未參選${SHORT[CITY]}${MT()}</span></div>`}
-      ${m.edu ? `<dl class="kv"><dt>學歷</dt><dd><ul class="plain">${m.edu.map(x => `<li>${esc(x)}</li>`).join('')}</ul></dd>
-      <dt>經歷</dt><dd><ul class="plain">${m.exp.map(x => `<li>${esc(x)}</li>`).join('')}</ul></dd></dl>` : ''}
-      ${b22box(m.b22, `2022 ${MT()}選舉公報刊登的學經歷`)}
-      ${m.src ? `<div class="src">${esc(m.src)}</div>` : ''}
+      ${hasBio ? (ph ? `<details class="mmore"><summary>學經歷</summary>${bio}</details>` : bio) : ''}
     </div>
-  </article>`).join('');
+  </article>`; }).join('');
 }
+PHONE.addEventListener('change', () => { if (YEAR === '2026') renderMayors26(); });
 function stats26(){
   const L = C().council, n = p => L.filter(c => c.party === p).length;
   const ind = n('無'), k = n('中國國民黨'), d = n('民主進步黨');
@@ -535,6 +566,8 @@ function render22(hl){
 function header(){
   const c = C(), s = SHORT[CITY];
   document.querySelectorAll('[data-city]').forEach(b => { const on = b.dataset.city === CITY; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  $('#citysel').value = CITY; $('#qcity').textContent = CITY;
+  $('#qm').textContent = MT(); $('#qc').textContent = CT();
   ['26', '22'].forEach(k => { const b = $('#tab' + k), on = YEAR === '20' + k; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
   const seats = c.districts.reduce((a, d) => a + d.seats, 0);
   if (YEAR === '2026') {
