@@ -218,9 +218,11 @@ footer ul{padding-left:1.1em}
 .citypick,.qbar{display:none}
 #mayor,#council{scroll-margin-top:calc(env(safe-area-inset-top,0px) + 52px)}
 @media (max-width:640px){
-  .cities{display:none}
-  .citypick{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:14px;color:var(--muted)}
-  .citypick select{flex:1;min-width:0;font:inherit;font-size:16px;font-weight:700;color:var(--ink);background:var(--paper);border:1px solid var(--line);border-radius:3px;padding:8px 10px}
+  .cities{gap:6px;margin-top:12px}
+  .cgrp{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;margin-inline:-20px;padding-inline:20px;scroll-padding-inline:20px}
+  .cgrp::-webkit-scrollbar{display:none}
+  .cgl{width:auto;margin-right:2px}
+  .cities button,.cities button.sm{flex:none;font-size:14px;padding:4px 11px}
   .qbar{display:flex;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;align-items:center;gap:6px;margin:10px -20px 0;padding:8px 20px;background:var(--bg);border-bottom:1px solid var(--line)}
   .qbar #qcity{font-family:var(--f-display);font-weight:700;margin-right:auto}
   .qbar button{font:inherit;font-size:13px;padding:4px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:20px;cursor:pointer}
@@ -242,7 +244,6 @@ footer ul{padding-left:1.1em}
     <div class="count"><b id="days">–</b><span>天後投票</span></div>
   </header>
   <nav class="cities" id="cities" aria-label="選擇城市"></nav>
-  <label class="citypick" for="citysel"><span>縣市</span><select id="citysel" aria-label="選擇縣市"></select></label>
   <div class="qbar" role="navigation" aria-label="快速跳轉"><span id="qcity"></span><button type="button" data-jump="mayor" id="qm">市長</button><button type="button" data-jump="council" id="qc">議員</button><button type="button" data-jump="top">回頂端</button></div>
   <div class="prefs"><button type="button" class="theme" id="phbtn" aria-pressed="true">不顯示照片</button><button type="button" class="theme" id="theme">深色模式</button></div>
   <nav class="tabs" role="tablist" aria-label="選舉年份"><button type="button" role="tab" id="tab26">2026 候選人</button><button type="button" role="tab" id="tab22">2022 選舉結果</button></nav>
@@ -331,8 +332,6 @@ const C = () => DATA.cities[CITY];
 $('#cities').innerHTML = `<div class="cgrp"><span class="cgl">六都</span>${DATA.six.map(c => `<button type="button" data-city="${c}">${SHORT[c]}</button>`).join('')}</div>`
   + `<div class="cgrp"><span class="cgl">其他縣市</span>${DATA.counties.map(c => `<button type="button" class="sm" data-city="${c}">${SHORT[c]}</button>`).join('')}</div>`;
 document.querySelectorAll('[data-city]').forEach(b => b.addEventListener('click', () => setCity(b.dataset.city)));
-$('#citysel').innerHTML = `<optgroup label="六都">${DATA.six.map(c => `<option value="${c}">${c}</option>`).join('')}</optgroup><optgroup label="其他縣市">${DATA.counties.map(c => `<option value="${c}">${c}</option>`).join('')}</optgroup>`;
-$('#citysel').addEventListener('change', e => setCity(e.target.value));
 // 4. quick bar (phone): jump to mayor / council / top
 document.querySelectorAll('[data-jump]').forEach(b => b.addEventListener('click', () => {
   const t = b.dataset.jump === 'top' ? document.body : $('#' + b.dataset.jump);
@@ -566,7 +565,9 @@ function render22(hl){
 function header(){
   const c = C(), s = SHORT[CITY];
   document.querySelectorAll('[data-city]').forEach(b => { const on = b.dataset.city === CITY; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
-  $('#citysel').value = CITY; $('#qcity').textContent = CITY;
+  $('#qcity').textContent = CITY;
+  const onb = document.querySelector(`[data-city="${CITY}"]`), row = onb && onb.parentElement;
+  if (row && row.scrollWidth > row.clientWidth) row.scrollLeft = onb.offsetLeft - row.offsetLeft - (row.clientWidth - onb.offsetWidth) / 2;
   $('#qm').textContent = MT(); $('#qc').textContent = CT();
   ['26', '22'].forEach(k => { const b = $('#tab' + k), on = YEAR === '20' + k; b.classList.toggle('on', on); b.setAttribute('aria-selected', on); });
   const seats = c.districts.reduce((a, d) => a + d.seats, 0);
