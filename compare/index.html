@@ -89,17 +89,36 @@ a.jump:hover{color:var(--accent);text-decoration-color:var(--accent)}
 details{margin-top:10px;border-top:1px dashed var(--line);padding-top:6px}
 summary{cursor:pointer;font-size:13px;color:var(--accent)}
 .pre{white-space:pre-line;font-size:13px}
-.vgrid{display:grid;gap:14px;margin-top:14px}
-.vcard{background:var(--paper);border:1px solid var(--line);padding:16px 18px;min-width:0}
-.vcard h3{font-size:22px}.vcard h3 small{font-size:14px;color:var(--muted);font-family:var(--f-body);font-weight:500;margin-left:6px}
-.vinfo{display:flex;flex-wrap:wrap;gap:2px 18px;font-size:13px;color:var(--muted);margin-top:6px}.vinfo b{color:var(--ink);font-weight:500}
-.mini{border-collapse:collapse;width:100%;font-size:13px;min-width:0}
-.mini td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-.mini td.num{white-space:nowrap}
-.cl{display:grid;gap:8px;margin-top:6px}
-.ci{border:1px solid var(--line);padding:8px 10px;border-radius:3px;min-width:0}
-.ci .h{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}.ci .h .n{font-family:var(--f-num);font-size:22px;font-weight:700}
-.ci .h b{font-size:16px}
+.qtiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px;scroll-margin-top:16px}
+.qtile{font:inherit;text-align:left;display:grid;gap:2px;padding:12px 14px;background:var(--paper);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--ink)}
+.qtile:hover{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.qn{font-family:var(--f-display);font-size:20px;font-weight:700}
+.qt{font-size:12px;color:var(--muted)}
+.qc{font-size:12px;color:var(--muted);margin-top:4px}
+.qr{justify-self:start;font-size:12px;font-weight:700;padding:1px 8px;border-radius:10px;background:var(--soft);color:var(--muted)}
+.qr.live{background:var(--accent-soft);color:var(--accent)}
+.qr.hot{background:var(--accent);color:var(--paper)}
+.qnotes{display:flex;flex-wrap:wrap;gap:4px 24px;margin:14px 0 4px}
+.qnotes details{flex:1 1 320px;border-top:0;padding-top:0;margin-top:0}
+.qtext{font-size:13px;line-height:1.7;margin-top:6px;color:var(--ink)}
+.qv{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:18px 20px;margin-top:16px;scroll-margin-top:16px}
+.qv.flash{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.qvh{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 10px}
+.qvh h3{font-size:26px}.qvh .back{margin-left:auto;font-size:13px}
+.qfacts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0 0;padding:10px 12px;background:var(--soft);border-radius:4px}
+.qfacts div{min-width:0}.qfacts dt{font-size:12px;color:var(--muted)}.qfacts dd{margin:0;font-size:14px;font-weight:500;overflow-wrap:anywhere}
+.qcands{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.qc2{border:1px solid var(--line);border-radius:4px;padding:10px 12px;min-width:0}
+.qch{display:flex;align-items:center;gap:8px}
+.qno{font-family:var(--f-num);font-size:18px;font-weight:700;width:28px;height:28px;border-radius:50%;border:2px solid var(--ink);display:inline-flex;align-items:center;justify-content:center;flex:none}
+.qch b{font-size:17px}
+.q22{font-size:12px;color:var(--ink);margin-top:6px}.q22.none,.qbg.none{color:var(--muted)}
+.qbg{font-size:13px;margin:6px 0 0;color:var(--ink);line-height:1.6}
+.qc2 details{margin-top:6px;padding-top:4px}.qc2 ul{margin:6px 0 0;padding-left:1.1em;font-size:13px}
+.qmore{display:flex;flex-wrap:wrap;gap:4px 24px;margin-top:12px}.qmore details{flex:1 1 300px}
+.dtabs button{white-space:nowrap}
+@media (max-width:640px){.dtabs{overflow-x:auto;scrollbar-width:none}.dtabs::-webkit-scrollbar{display:none}.dtabs button{padding:8px 11px;font-size:16px;flex:none}}
+@media (max-width:760px){.qtiles{grid-template-columns:repeat(2,minmax(0,1fr))}.qfacts{grid-template-columns:repeat(2,minmax(0,1fr))}.qcands{grid-template-columns:1fr}}
 
 footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
 </style>
@@ -108,7 +127,7 @@ footer{margin-top:40px;font-size:13px;color:var(--muted);border-top:1px solid va
   <div class="top"><h1>桃園候選人比較</h1><button type="button" class="theme" id="theme">切換深色模式</button></div>
   <nav class="dtabs" id="dtabs" aria-label="選舉區"></nav>
   <div class="sub" id="sub"></div>
-  <div class="note">
+  <div class="note" id="gnote">
     <b>這份整理怎麼看</b>
     <ul>
       <li>只放查得到出處的事實：2022 開票結果（中選會）、2022 選舉公報學經歷、議會質詢與新聞報導。每一條都附來源連結，可以點開核對。</li>
@@ -175,30 +194,57 @@ document.querySelectorAll('[data-s]').forEach(b => b.addEventListener('click', (
 const hits = c => c.tags.filter(t => picked.has(t)).length;
 function renderQP(){
   const Q = DATA.qp, S = Q.split || {};
-  $('#sub').textContent = '青埔特區（高鐵桃園站特定區）・橫跨中壢區、大園區・8 個里選里長・投票日 2026/11/28';
+  $('#sub').textContent = '青埔特區（高鐵桃園站特定區）・橫跨中壢區、大園區・8 個里・投票日 2026/11/28';
   const src = a => (a || []).map(u => link(typeof u === 'string' ? u : u.url)).join('');
+  const race = v => v.c26.length <= 1 ? ['同額', 'calm'] : [`${v.c26.length} 人搶 1 席`, v.c26.length >= 4 ? 'hot' : 'live'];
+  const chief = I => (I.current_chief || '').replace(/（.*?）/, '');
+  const acting = I => /代理/.test(I.current_chief || '');
+  const short = (s, n) => { s = String(s || ''); return s.length > n ? s.slice(0, n) + '…' : s; };
   $('#qpv').innerHTML = `
-    <h2>青埔地區各里里長</h2>
-    <div class="gap">里別依官方 115 年里長號次公告；2022 結果取自中選會選舉資料庫；里辦公處、人口與候選人背景附出處。里長候選人多為無黨籍，媒體報導通常很少。</div>
-    <div class="note" style="border-left-color:var(--warn)"><b>限制：</b>這一輪沒有完成里長候選人的司法案件與爭議搜尋（搜尋次數用完），所以卡片上沒有爭議欄，<b>不代表這些候選人沒有爭議</b>。標示「2022 政見」的是候選人上屆公報的內容；今年的政見待 115 年公報公布。</div>
-    ${S.text ? `<div class="note"><b>青埔里拆里</b><div style="margin-top:4px;font-size:14px">${esc(S.text)}${S.detail ? '<br>' + esc(S.detail) : ''}${S.interim ? '<br>' + esc(S.interim) : ''}${src(S.sources)}</div></div>` : ''}
-    <div class="vgrid">${Q.villages.map(v => { const I = v.info || {}; return `<article class="vcard">
-      <h3>${esc(v.li)}<small>${esc(v.town)}</small></h3>
-      <div class="vinfo">${I.current_chief ? `<span>現任里長 <b>${esc(I.current_chief)}</b></span>` : ''}${I.office_address ? `<span>里辦公處 <b>${esc(I.office_address)}</b></span>` : ''}${I.office_phone ? `<span>電話 <b>${esc(I.office_phone)}</b></span>` : ''}${I.neighborhoods ? `<span>鄰數 <b>${esc(I.neighborhoods)}</b></span>` : ''}${I.households ? `<span>戶數 <b>${esc(I.households)}</b></span>` : ''}${I.population ? `<span>人口 <b>${esc(I.population)}</b></span>` : ''}${I.as_of ? `<span>（${esc(I.as_of)}）</span>` : ''}${src(I.sources)}</div>
-      ${I.boundary ? `<div class="gap" style="margin-top:4px">範圍：${esc(I.boundary)}</div>` : ''}
-      <div class="sec"><h4>2026 候選人（${v.c26.length} 人）</h4><div class="cl">${v.c26.map(c => `<div class="ci">
-        <div class="h"><span class="n">${c.no}</span><b>${esc(c.name)}</b><span class="p ${pcls(c.party)}">${esc(pname(c.party))}</span>${c.prev ? `<span class="t">2022 ${esc(c.prev.li)} ${c.prev.votes.toLocaleString()} 票・${c.prev.won ? '當選' : '未當選'}</span><span class="gap">${esc(c.prev.sex)}・${c.prev.by} 年生</span>` : ''}</div>
-        ${c.background ? `<div style="font-size:14px;margin-top:4px">${esc(c.background)}</div>` : ''}
-        ${c.record.length ? `<ul style="margin:4px 0 0;padding-left:1.2em;font-size:13px">${c.record.map(r => `<li>${r.date ? esc(r.date) + '：' : ''}${esc(r.text)}${link(r.url)}</li>`).join('')}</ul>` : ''}
-        ${c.platform.length ? `<div style="font-size:13px;margin-top:4px"><b>政見：</b>${c.platform.map(p => esc(p.text) + link(p.url)).join('；')}</div>` : ''}
-        ${!c.background && !c.record.length && !c.platform.length ? '<div class="gap">查無相關報導。</div>' : ''}
-      </div>`).join('')}</div></div>
-      <div class="sec"><h4>2022 里長選舉結果</h4>${v.r22.length ? `<div class="tw"><table class="mini"><tbody>${v.r22.map(r => `<tr><td>${esc(r.name)}${r.cur ? ' <span class="t">當時現任</span>' : ''}</td><td class="num">${r.votes.toLocaleString()} 票・${r.pct.toFixed(2)}%</td><td>${r.won ? '<span class="tag">當選</span>' : '未當選'}</td><td class="gap">${esc(r.sex)}・${r.by} 年生・${esc(r.edu)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="gap">2022 年尚未設里（2026 年 3 月由青埔里拆出）。</div>'}</div>
-    </article>`; }).join('')}</div>`;
+    <div class="qtiles" id="qtop">${Q.villages.map((v, i) => { const [r, k] = race(v), I = v.info || {}; return `
+      <button type="button" class="qtile" data-v="${i}">
+        <span class="qn">${esc(v.li)}</span><span class="qt">${esc(v.town)}${v.r22.length ? '' : '・新設'}</span>
+        <span class="qr ${k}">${r}</span>
+        <span class="qc">${acting(I) ? '代理里長 ' : '里長 '}${esc(chief(I))}</span>
+      </button>`; }).join('')}</div>
+    <div class="qnotes">
+      ${S.text ? `<details><summary>青埔里 2026/3/1 拆成青埔、青航、青園三里</summary><div class="qtext">${esc(S.text)}${S.interim ? '<br>' + esc(S.interim) : ''}${src(S.sources)}</div></details>` : ''}
+      <details><summary>資料來源與限制</summary><div class="qtext">里別依官方 115 年里長號次公告；2022 結果取自中選會選舉資料庫；里辦公處、戶數人口取自區公所與戶政事務所（115 年 10 月底）。<b>這一輪沒有完成里長候選人的司法案件與爭議搜尋，卡片上沒有爭議欄不代表沒有爭議。</b>「2022 政見」是上屆公報內容，今年政見待 115 年公報公布。里長候選人多為無黨籍，報導通常很少。</div></details>
+    </div>
+    ${Q.villages.map((v, i) => { const I = v.info || {}, [r, k] = race(v); return `
+    <article class="qv" id="qv${i}">
+      <header class="qvh"><h3>${esc(v.li)}</h3><span class="qt">${esc(v.town)}</span><span class="qr ${k}">${r}</span><a href="#qtop" class="back" data-qtop>回到選里 ↑</a></header>
+      <dl class="qfacts">
+        <div><dt>${acting(I) ? '代理里長' : '現任里長'}</dt><dd>${esc(chief(I)) || '—'}</dd></div>
+        <div><dt>電話</dt><dd>${esc(short(I.office_phone, 40)) || '—'}</dd></div>
+        <div><dt>戶數／人口</dt><dd>${I.households ? `${Number(I.households).toLocaleString()} 戶・${Number(I.population).toLocaleString()} 人` : '—'}</dd></div>
+        <div><dt>鄰數</dt><dd>${esc(I.neighborhoods) || '—'}</dd></div>
+      </dl>
+      <div class="qcands">${v.c26.map(c => `
+        <div class="qc2">
+          <div class="qch"><span class="qno">${c.no}</span><b>${esc(c.name)}</b>${c.prev && c.prev.won && c.prev.li === v.li ? '<span class="tag">現任</span>' : ''}</div>
+          ${c.prev ? `<div class="q22">2022 ${esc(c.prev.li)}：${c.prev.votes.toLocaleString()} 票・${c.prev.won ? '當選' : '未當選'}　${esc(c.prev.sex)}・${c.prev.by} 年生</div>` : '<div class="q22 none">2022 未參選里長</div>'}
+          ${c.background && !/^沒有查到/.test(c.background) ? `<p class="qbg">${esc(short(c.background, 90))}</p>` : '<p class="qbg none">查無公開背景資料</p>'}
+          ${(c.record.length || c.platform.length || (c.background || '').length > 90) ? `<details><summary>更多</summary>
+            ${(c.background || '').length > 90 ? `<p class="qbg">${esc(c.background)}</p>` : ''}
+            ${c.record.length ? `<ul>${c.record.map(r => `<li>${r.date ? esc(r.date) + '：' : ''}${esc(r.text)}${link(r.url)}</li>`).join('')}</ul>` : ''}
+            ${c.platform.length ? `<div class="qbg"><b>政見：</b>${c.platform.map(p => esc(p.text) + link(p.url)).join('；')}</div>` : ''}
+          </details>` : ''}
+        </div>`).join('')}</div>
+      <div class="qmore">
+        ${v.r22.length ? `<details><summary>2022 里長選舉結果（${v.r22.length} 人）</summary><table class="mini"><tbody>${v.r22.map(r => `<tr><td>${esc(r.name)}</td><td class="num">${r.votes.toLocaleString()} 票</td><td class="num">${r.pct.toFixed(1)}%</td><td>${r.won ? '<span class="tag">當選</span>' : ''}</td></tr>`).join('')}</tbody></table></details>` : '<div class="gap">2022 年尚未設里，今年選出首任里長。</div>'}
+        ${I.boundary || I.office_address ? `<details><summary>里辦公處與範圍</summary><div class="qtext">${I.office_address ? `<b>里辦公處：</b>${esc(I.office_address)}<br>` : ''}${I.boundary ? `<b>範圍：</b>${esc(I.boundary)}` : ''}${src(I.sources)}</div></details>` : ''}
+      </div>
+    </article>`; }).join('')}`;
+  document.querySelectorAll('[data-v]').forEach(b => b.addEventListener('click', () => {
+    const el = document.getElementById('qv' + b.dataset.v); el.scrollIntoView({behavior: smooth(), block: 'start'});
+    el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1600);
+  }));
+  document.querySelectorAll('[data-qtop]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); $('#qtop').scrollIntoView({behavior: smooth(), block: 'start'}); }));
 }
 function render(){
   document.querySelectorAll('[data-dk]').forEach(b => b.classList.toggle('on', b.dataset.dk === DK));
-  $('#cmpv').hidden = DK === 'qp'; $('#qpv').hidden = DK !== 'qp';
+  $('#cmpv').hidden = DK === 'qp'; $('#qpv').hidden = DK !== 'qp'; $('#gnote').hidden = DK === 'qp';
   if (DK === 'qp') { renderQP(); return; }
   const D = DD();
 
