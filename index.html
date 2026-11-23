@@ -125,10 +125,20 @@ ul.plain{margin:0;padding-left:1.1em}
 .ibtns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
 .ibtn{font-family:var(--f-body);font-size:14px;padding:8px 6px}
 .maphint{font-size:12px;color:var(--muted);margin-top:8px}
-.search{margin-top:12px;display:flex;gap:6px}
-.search input{flex:1;min-width:0;font:inherit;padding:7px 10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:3px}
-.hits{font-size:13px;margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
-.hits button{font:inherit;font-size:13px;background:none;border:1px solid var(--line);color:var(--ink);padding:1px 8px;border-radius:3px;cursor:pointer}
+.gsearch{margin-top:14px;background:var(--paper);border:1px solid var(--line);padding:12px 14px;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 56px)}
+.search{display:flex;align-items:center;gap:8px;border:2px solid var(--line);background:var(--bg);border-radius:6px;padding:0 12px}
+.search:focus-within{border-color:var(--accent)}
+.search svg{width:18px;height:18px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.search input{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px 0;border:0;outline:0;background:transparent;color:var(--ink)}
+.hits{font-size:13px;display:flex;flex-wrap:wrap;gap:6px}
+.hits:not(:empty){margin-top:10px}
+.hits button{font:inherit;font-size:14px;background:var(--soft);border:1px solid var(--line);color:var(--ink);padding:4px 10px;border-radius:4px;cursor:pointer;text-align:left}
+.hits button:hover{border-color:var(--accent)}
+.hits button b{font-weight:700}
+.hits .hk{font-size:12px;color:var(--muted)}
+.hits .hm{color:var(--accent);font-weight:700;font-size:12px;margin-right:4px}
+.hits .more{width:100%;color:var(--muted);font-size:12px}
+.mcard.hl,.m22row.hl{outline:3px solid var(--accent);outline-offset:2px}
 
 .panel{min-width:0}
 .dhead{background:var(--paper);border:1px solid var(--line);border-top:3px solid var(--accent);padding:16px 18px}
@@ -239,7 +249,11 @@ footer .more{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);
     <div class="count"><b id="days">–</b><span>天後投票</span></div>
   </header>
   <nav class="cities" id="cities" aria-label="選擇城市"></nav>
-  <div class="qbar" role="navigation" aria-label="快速跳轉"><span id="qcity"></span><button type="button" data-jump="mayor" id="qm">市長</button><button type="button" data-jump="council" id="qc">議員</button><button type="button" data-jump="top">回頂端</button></div>
+  <div class="gsearch" id="gsearch">
+    <label class="search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="q" type="search" placeholder="搜尋全台候選人：姓名、政黨或地區，例如 林杏兒、民眾黨、中壢" aria-label="搜尋候選人姓名、政黨或地區" autocomplete="off"></label>
+    <div class="hits" id="hits" aria-live="polite"></div>
+  </div>
+  <div class="qbar" role="navigation" aria-label="快速跳轉"><span id="qcity"></span><button type="button" data-jump="mayor" id="qm">市長</button><button type="button" data-jump="council" id="qc">議員</button><button type="button" data-jump="gsearch" id="qs">搜尋</button><button type="button" data-jump="top">回頂端</button></div>
   <div class="prefs"><button type="button" class="theme" id="phbtn" aria-pressed="true">不顯示照片</button><button type="button" class="theme" id="theme">深色模式</button></div>
   <nav class="tabs" role="tablist" aria-label="選舉年份"><button type="button" role="tab" id="tab26">2026 候選人</button><button type="button" role="tab" id="tab22">2022 選舉結果</button></nav>
   <div class="notice" id="notice"></div>
@@ -259,8 +273,6 @@ footer .more{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);
         <div class="dbtns" id="dbtns"></div>
         <div class="ibtns" id="ibtns"></div>
         <div class="maphint" id="maphint">點地圖上的行政區，或按選區編號。原住民選區不分行政區，由該範圍內的原住民選民投票。</div>
-        <div class="search"><input id="q" type="search" placeholder="搜尋全台候選人姓名" aria-label="搜尋候選人姓名"></div>
-        <div class="hits" id="hits"></div>
       </aside>
       <div class="panel">
         <div class="dhead" id="dhead"></div>
@@ -592,23 +604,49 @@ function setCity(c, d, hl){
   CITY = c; store('ty6-city', c);
   document.documentElement.classList.toggle('cityno', !DATA.photos.cities[c] && !(DATA.photos26 || {})[c]);
   drawMap(); header();
-  $('#q').value = ''; $('#hits').innerHTML = '';
   select(d || +load('ty6-d-' + c) || 1, hl);
 }
 function setYear(y){ YEAR = y; store('ty6-year', y); drawMap(); header(); select(cur); }
 $('#tab26').addEventListener('click', () => setYear('2026'));
 $('#tab22').addEventListener('click', () => setYear('2022'));
 
+// ---------- search: name, party or area, across all cities; councillors and mayors ----------
+function searchPool(){
+  return ALL.flatMap(city => {
+    const c = DATA.cities[city], short = SHORT[city];
+    const dists = (YEAR === '2022' && c.districts22) ? c.districts22 : c.districts;
+    const area = n => (dists.find(d => d.no === n) || {}).area || '';
+    const mayors = (YEAR === '2022' ? c.y22.mayors : c.mayors).map(m => ({city, mayor: true, no: m.no, name: m.name, party: m.party || '', area: city + short}));
+    const council = YEAR === '2022'
+      ? Object.entries(c.y22.districts).flatMap(([d, l]) => l.map(x => ({city, district: +d, no: x.no, name: x.name, party: x.party || '', area: city + short + area(+d)})))
+      : c.council.map(x => ({city, district: x.district, no: x.no, name: x.name, party: x.party || '', area: city + short + area(x.district)}));
+    return mayors.concat(council);
+  });
+}
+const LIMIT = 24;
 $('#q').addEventListener('input', e => {
-  const q = e.target.value.trim();
+  const q = e.target.value.trim().replace(/[臺]/g, '台');
   if (!q) { $('#hits').innerHTML = ''; return; }
-  const pool = ALL.flatMap(city => YEAR === '2022'
-    ? Object.entries(DATA.cities[city].y22.districts).flatMap(([d, l]) => l.map(c => ({city, district: +d, no: c.no, name: c.name})))
-    : DATA.cities[city].council.map(c => ({city, district: c.district, no: c.no, name: c.name})));
-  const hits = pool.filter(c => c.name.includes(q)).slice(0, 14);
-  $('#hits').innerHTML = hits.length ? hits.map((c, i) => `<button type="button" data-hit="${i}">${esc(c.name)}・${SHORT[c.city]}第${c.district}區${c.no ? ' ' + c.no + '號' : ''}</button>`).join('') : '<span>找不到這個名字</span>';
+  const norm = s => s.replace(/[臺]/g, '台');
+  const pool = searchPool();
+  const byName = pool.filter(c => norm(c.name).includes(q));
+  const byOther = pool.filter(c => !norm(c.name).includes(q) && (norm(c.party).includes(q) || norm(c.area).includes(q)));
+  const all = byName.concat(byOther), hits = all.slice(0, LIMIT);
+  const label = c => c.mayor ? `${SHORT[c.city]}${DATA.cities[c.city].mt}` : `${SHORT[c.city]}第${c.district}區`;
+  $('#hits').innerHTML = hits.length
+    ? hits.map((c, i) => `<button type="button" data-hit="${i}">${c.mayor ? `<span class="hm">${esc(DATA.cities[c.city].mt)}</span>` : ''}<b>${esc(c.name)}</b> <span class="hk">${esc(label(c))}${c.no ? '・' + c.no + '號' : ''}${c.party ? '・' + esc(c.party.replace('中國國民黨', '國民黨').replace('民主進步黨', '民進黨')) : ''}</span></button>`).join('')
+      + (all.length > LIMIT ? `<span class="more">共 ${all.length} 筆，先列前 ${LIMIT} 筆；輸入更完整的名字或地區可以縮小範圍</span>` : '')
+    : '<span>找不到符合的候選人</span>';
   document.querySelectorAll('[data-hit]').forEach(b => b.addEventListener('click', () => {
     const h = hits[+b.dataset.hit];
+    if (h.mayor) {
+      if (h.city !== CITY) setCity(h.city);
+      const card = [...document.querySelectorAll('#mayors .mcard, #mayors .m22row')].find(el => el.textContent.includes(h.name));
+      document.querySelectorAll('.mcard.hl,.m22row.hl').forEach(el => el.classList.remove('hl'));
+      if (card) card.classList.add('hl');
+      (card || $('#mayor')).scrollIntoView({behavior: 'smooth', block: 'center'});
+      return;
+    }
     if (h.city !== CITY) setCity(h.city, h.district, h.name); else select(h.district, h.name);
   }));
 });
