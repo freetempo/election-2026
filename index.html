@@ -26,12 +26,7 @@
   --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
   --f-num:"Barlow Condensed","Arial Narrow",sans-serif;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#12151b; --paper:#1a1f27; --ink:#e7eaf0; --muted:#9aa3b2; --line:#2c333f; --soft:#222833;
-  --accent:#f0679f; --accent-soft:#3a1d2b;
-  --kmt:#6f97f0; --dpp:#4cc274; --tpp:#3fd0d4; --pfp:#f5a14a; --oth:#b4a5d6; --ind:#a0a7b3;
-  --map-fill:#2a313d; --map-hover:#5a2a41; --map-sel:#f0679f; --map-stroke:#12151b; color-scheme:dark}}
-:root[data-theme="dark"]{
+:root.dk{
   --bg:#12151b; --paper:#1a1f27; --ink:#e7eaf0; --muted:#9aa3b2; --line:#2c333f; --soft:#222833;
   --accent:#f0679f; --accent-soft:#3a1d2b;
   --kmt:#6f97f0; --dpp:#4cc274; --tpp:#3fd0d4; --pfp:#f5a14a; --oth:#b4a5d6; --ind:#a0a7b3;
@@ -96,7 +91,7 @@ table.pt{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric
 /* party */
 .p{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:3px;color:#fff;background:var(--ind);white-space:nowrap}
 .p.kmt{background:var(--kmt)}.p.dpp{background:var(--dpp)}.p.tpp{background:var(--tpp)}.p.pfp{background:var(--pfp)}.p.oth{background:var(--oth)}
-:root[data-theme="dark"] .p,.p{color:var(--paper)}
+:root.dk .p,.p{color:var(--paper)}
 .tag{display:inline-block;font-size:12px;padding:0 7px;border:1px solid var(--accent);color:var(--accent);border-radius:3px;white-space:nowrap}
 .tag.grey{border-color:var(--line);color:var(--muted)}
 
@@ -313,7 +308,7 @@ const C = () => DATA.cities[CITY];
 (function(){
   const root = document.documentElement, btn = $('#theme');
   let m = load('ty-theme') === 'dark' ? 'dark' : 'light';
-  const apply = () => { root.setAttribute('data-theme', m); btn.textContent = m === 'light' ? '切換深色模式' : '切換淺色模式'; };
+  const apply = () => { root.classList.toggle('dk', m === 'dark'); btn.textContent = m === 'light' ? '切換深色模式' : '切換淺色模式'; };
   apply();
   btn.addEventListener('click', () => { m = m === 'light' ? 'dark' : 'light'; store('ty-theme', m); apply(); });
 })();
